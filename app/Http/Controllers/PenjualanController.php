@@ -2,29 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Penjualan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Penjualan;
+use App\Models\Produk;
 
-class PenjualanController extends Controller
+class KasirController extends Controller
 {
-    public function index()
+    public function create()
     {
-        $penjualan = Penjualan::where('id_user', Auth::id())->get();
-        return view('kasir.penjualan.index', compact('penjualan'));
+        $produks = Produk::all();
+        return view('penjualan.create', compact('produks'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'total_harga' => 'required|numeric',
+            'produk_id' => 'required|exists:produks,id',
+            'kuantitas' => 'required|integer|min:1',
         ]);
+
+        $produk = Produk::find($request->produk_id);
+
+        if ($produk->stok < $request->kuantitas) {
+            return back()->withErrors(['kuantitas' => 'Stok tidak cukup.']);
+        }
+
+        $total_harga = $produk->harga_jual * $request->kuantitas;
 
         Penjualan::create([
-            'total_harga' => $request->total_harga,
-            'id_user' => Auth::id(),
+            'nama_produk' => $produk->nama_produk,
+            'harga_jual' => $produk->harga_jual,
+            'kuantitas' => $request->kuantitas,
+            'total' => $total_harga,
         ]);
 
-        return redirect()->route('kasir.penjualan.index')->with('success', 'Transaksi berhasil dicatat.');
+        // Kurangi stok
+        $produk->stok -= $request->kuantitas;
+        $produk->save();
+
+        return redirect()->back()->with('success', 'Penjualan berhasil!');
     }
 }
