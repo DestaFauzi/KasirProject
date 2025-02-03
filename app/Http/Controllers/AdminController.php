@@ -8,6 +8,7 @@ class AdminController extends Controller
 {
     public function index()
     {
+        // dd('Admin Dashboard');
         return view('admin.dashboard'); // Pastikan view ini ada
     }
 }
