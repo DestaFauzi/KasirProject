@@ -8,7 +8,6 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // dd('HEllo admin');
         return view('admin.dashboard'); // Pastikan view ini ada
     }
 }

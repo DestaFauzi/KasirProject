@@ -14,14 +14,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 Route::middleware('auth')->group(function () {
+    // Admin Routes
+    // Route::middleware('can:admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class , 'index'])->name('admin-dashboard');
 
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin-dashboard');
-    Route::resource('/admin/produk', ProdukController::class);
+        // Product Management
+        Route::resource('/admin/produk', ProdukController::class);
+    // });
 
-    Route::get('/kasir/dashboard', function () {
-        return view('kasir.dashboard');
-    })->name('kasir-dashboard');
-    Route::get('/kasir/penjualan', [KasirController::class, 'indexPenjualan'])->name('kasir-penjualan');
+    // Kasir Routes
+    // Route::middleware('can:kasir')->group(function () {
+        Route::get('/kasir/dashboard', function () {
+            return view('kasir.dashboard');
+        })->name('kasir-dashboard');
+
+        // Sales Management (Penjualan)
+        Route::get('/kasir/penjualan', [KasirController::class, 'index'])->name('kasir.penjualan.index');
+    // });
 });
-Route::get('/kasir/penjualan', [KasirController::class, 'create']);
-Route::post('/kasir/penjualan', [KasirController::class, 'store']);
